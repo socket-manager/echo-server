@@ -128,7 +128,7 @@ class UdpEchoClient extends Console
         while(true)
         {
             // 周期ドリブン
-            $ret = $manager->cycleDriven();
+            $ret = $manager->cycleDriven($this->cycle_interval, $this->alive_interval);
             if($ret === false)
             {
                 goto finish;
