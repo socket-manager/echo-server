@@ -24,7 +24,7 @@ class TcpEchoServer extends Console
     /**
      * @var string $identifer サーバー識別子
      */
-    protected string $identifer = 'app:tcp-echo-server {port?}';
+    protected string $identifer = 'app:tcp-echo-server {max_concurrent_connections?} {port?}';
 
     /**
      * @var string $description コマンド説明
@@ -78,6 +78,9 @@ class TcpEchoServer extends Console
         // 引数の反映
         //--------------------------------------------------------------------------
 
+        // 接続制限数の取得
+        $max_concurrent_connections = $this->getParameter('max_concurrent_connections');
+
         // ポート番号の取得
         $port = $this->getParameter('port');
         if($port !== null)
@@ -90,7 +93,7 @@ class TcpEchoServer extends Console
         //--------------------------------------------------------------------------
 
         // ソケットマネージャーのインスタンス設定
-        $manager = new SocketManager($this->host, $this->port);
+        $manager = new SocketManager($this->host, $this->port, null, $max_concurrent_connections);
 
         /**
          * 初期化クラスの設定
@@ -103,8 +106,9 @@ class TcpEchoServer extends Console
          * プロトコルUNITの設定
          * 
          */
+        $send_data = config('const.send_data', 'test data');
         $broadcast = config('const.broadcast_tcp', false);
-        $protocol = new ProtocolEchoServer($broadcast);
+        $protocol = new ProtocolEchoServer(strlen($send_data), $broadcast);
         $manager->setProtocolUnits($protocol);
 
         /**

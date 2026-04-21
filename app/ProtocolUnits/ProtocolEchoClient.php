@@ -136,7 +136,7 @@ class ProtocolEchoClient implements IEntryUnits
                 return null;
             }
 
-            return ProtocolEchoClientStatusEnum::SENDING->values;
+            return ProtocolEchoClientStatusEnum::SENDING->value;
         };
     }
 
@@ -160,7 +160,8 @@ class ProtocolEchoClient implements IEntryUnits
             $dat = '';
             $p_param->protocol()->recv($dat);
             $cid = $p_param->getConnectionId();
-            $p_param->logWriter('debug', ['receive data' => "{$dat}[{$cid}]"]);
+            $pid = getmypid();
+            $p_param->logWriter('debug', ['receive data' => "payload[{$dat}] cid[{$cid}]pid[{$pid}]"]);
 
             return null;
         };

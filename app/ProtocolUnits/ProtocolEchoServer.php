@@ -26,9 +26,14 @@ class ProtocolEchoServer implements IEntryUnits
      * @var const QUEUE_LIST キュー名のリスト
      */
     protected const QUEUE_LIST = [
-        ProtocolQueueEnum::RECV->value,		// 受信処理のキュー
-        ProtocolQueueEnum::SEND->value,		// 送信処理のキュー
+        ProtocolQueueEnum::RECV->value,	    // 受信処理のキュー
+        ProtocolQueueEnum::SEND->value	    // 送信処理のキュー
     ];
+
+    /**
+     * @var int ペイロード長
+     */
+    private int $payload_len = 0;
 
     /**
      * @var bool ブロードキャストフラグ
@@ -38,10 +43,12 @@ class ProtocolEchoServer implements IEntryUnits
     /**
      * コンストラクタ
      * 
+     * @param int $p_payload_len ペイロード長
      * @param bool $p_broadcast ブロードキャストフラグ
      */
-    public function __construct(bool $p_broadcast = false)
+    public function __construct(int $p_payload_len, bool $p_broadcast = false)
     {
+        $this->payload_len = $p_payload_len;
         $this->broadcast = $p_broadcast;
     }
 
@@ -71,6 +78,14 @@ class ProtocolEchoServer implements IEntryUnits
                 'status' => ProtocolEchoServerStatusEnum::START->value,
                 'unit' => $this->getRecvStart()
             ];
+            $ret[] = [
+                'status' => ProtocolEchoServerStatusEnum::RECEIVING->value,
+                'unit' => $this->getReceiving()
+            ];
+            $ret[] = [
+                'status' => ProtocolEchoServerStatusEnum::SENDING->value,
+                'unit' => $this->getSending()
+            ];
         }
         else
         if($p_que === ProtocolQueueEnum::SEND->value)
@@ -81,7 +96,7 @@ class ProtocolEchoServer implements IEntryUnits
             ];
             $ret[] = [
                 'status' => ProtocolEchoServerStatusEnum::SENDING->value,
-                'unit' => $this->getSendSending()
+                'unit' => $this->getSending()
             ];
         }
 
@@ -105,18 +120,10 @@ class ProtocolEchoServer implements IEntryUnits
     {
         return function(SocketManagerParameter $p_param): ?string
         {
-            $dat = '';
-            $p_param->protocol()->recv($dat);
-            if($this->broadcast)
-            {
-                $p_param->setSendStackAll($dat);
-            }
-            else
-            {
-                $p_param->setSendStack($dat);
-            }
-
-            return null;
+            $p_param->protocol()->setReceivingSize($this->payload_len);
+            $fnc = $this->getReceiving();
+            $sta = $fnc($p_param);
+            return $sta;
         };
     }
 
@@ -139,22 +146,56 @@ class ProtocolEchoServer implements IEntryUnits
         {
             $dat = $p_param->protocol()->getSendData();
             $p_param->protocol()->setSendingData($dat);
-            $fnc = $this->getSendSending();
+            $fnc = $this->getSending();
             $sta = $fnc($p_param);
 
             return $sta;
         };
     }
 
+
     /**
-     * ステータス名： SENDING
-     * 
-     * 処理名：送信中
+     * 再利用UNIT
+     */
+
+    /**
+     * 受信中の処理
      * 
      * @param SocketManagerParameter $p_param UNITパラメータ
      * @return ?string 遷移先のステータス名
      */
-    protected function getSendSending()
+    protected function getReceiving()
+    {
+        return function(SocketManagerParameter $p_param): ?string
+        {
+            $dat = $p_param->protocol()->receiving();
+            if($dat === null)
+            {
+                return ProtocolEchoServerStatusEnum::RECEIVING->value;
+            }
+            if($this->broadcast)
+            {
+                $p_param->setSendStackAll($dat);
+            }
+            else
+            {
+                $p_param->protocol()->setSendingData($dat);
+                $fnc = $this->getSending();
+                $sta = $fnc($p_param);
+                return $sta;
+            }
+
+            return null;
+        };
+    }
+
+    /**
+     * 送信中の処理
+     * 
+     * @param SocketManagerParameter $p_param UNITパラメータ
+     * @return ?string 遷移先のステータス名
+     */
+    protected function getSending()
     {
         return function(SocketManagerParameter $p_param): ?string
         {
@@ -164,7 +205,7 @@ class ProtocolEchoServer implements IEntryUnits
                 return null;
             }
 
-            return ProtocolEchoServerStatusEnum::SENDING->values;
+            return ProtocolEchoServerStatusEnum::SENDING->value;
         };
     }
 }

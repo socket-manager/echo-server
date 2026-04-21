@@ -27,4 +27,9 @@ enum ProtocolEchoServerStatusEnum: string
      * @var string 送信中ステータス
      */
     case SENDING = 'sending';
+
+    /**
+     * @var string 受信中ステータス
+     */
+    case RECEIVING = 'receiving';
 }
