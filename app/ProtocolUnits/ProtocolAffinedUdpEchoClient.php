@@ -53,7 +53,7 @@ class ProtocolAffinedUdpEchoClient implements IEntryUnits
     public function __construct(bool $p_send = false)
     {
         $this->send = $p_send;
-        $this->send_data = config('const.send_data', 'default data');
+        $this->send_data = config('affined_udp.send_data', 'default data');
         $this->send_data_size = strlen($this->send_data);
     }
 
