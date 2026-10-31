@@ -21,7 +21,6 @@ return [
      * @var int アライブチェックタイムアウト時間（s）
      */
     'alive_interval' => 3600,
-    // 'alive_interval' => 10, // @@@
 
     /**
      * @var array OS送受信バッファサイズ
