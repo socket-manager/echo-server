@@ -25,6 +25,11 @@ class InitAffinedUdpEchoServer implements IInitManager
     //--------------------------------------------------------------------------
 
     /**
+     * ホスト
+     */
+    private ?string $host = null;
+
+    /**
      * ポート番号
      */
     private ?int $port = null;
@@ -37,10 +42,12 @@ class InitAffinedUdpEchoServer implements IInitManager
     /**
      * コンストラクタ
      * 
+     * @param string $p_host ホスト
      * @param int $p_port ポート番号
      */
-    public function __construct(int $p_port)
+    public function __construct(string $p_host, int $p_port)
     {
+        $this->host = $p_host;
         $this->port = $p_port;
     }
 
@@ -55,7 +62,7 @@ class InitAffinedUdpEchoServer implements IInitManager
         $filename = date('Ymd');
         $now = date('Y-m-d H:i:s');
         $log = $now." {$p_level} ".print_r($p_param, true)."\n";
-        error_log($log, 3, "./logs/socket-manager/{$filename}_AFFINED_UDP_SERVER_{$this->port}.log");
+        error_log($log, 3, "./logs/socket-manager/{$filename}_AFFINED_UDP_SERVER_{$this->host}_{$this->port}.log");
     }
 
     /**
@@ -67,7 +74,7 @@ class InitAffinedUdpEchoServer implements IInitManager
      */
     public function getLogWriter()
     {
-        return $this->logWriter(...);
+        return null;
     }
 
     /**

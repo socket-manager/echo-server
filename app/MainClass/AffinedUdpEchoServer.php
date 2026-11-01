@@ -24,7 +24,7 @@ class AffinedUdpEchoServer extends Console
     /**
      * @var string $identifer サーバー識別子
      */
-    protected string $identifer = 'app:affined-udp-echo-server {max_concurrent_connections?} {port?}';
+    protected string $identifer = 'app:affined-udp-echo-server {max_concurrent_connections?} {host?} {port?}';
 
     /**
      * @var string $description コマンド説明
@@ -102,6 +102,13 @@ class AffinedUdpEchoServer extends Console
         $max_concurrent_connections = $this->getParameter('max_concurrent_connections');
 
         // ポート番号の取得
+        $host = $this->getParameter('host');
+        if($host !== null)
+        {
+            $this->host = $host;
+        }
+
+        // ポート番号の取得
         $port = $this->getParameter('port');
         if($port !== null)
         {
@@ -127,7 +134,7 @@ class AffinedUdpEchoServer extends Console
          * 初期化クラスの設定
          * 
          */
-        $init = new InitAffinedUdpEchoServer($this->port);
+        $init = new InitAffinedUdpEchoServer($this->host, $this->port);
         $manager->initManager($init);
 
         /**
