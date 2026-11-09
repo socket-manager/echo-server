@@ -118,11 +118,12 @@ class ProtocolPureUdpEchoServer implements IEntryUnits
             'data' => $data,
             'size' => $size
         ];
+        $p_param->setTempBuff(['send_data' => $tmp]);
         if($this->broadcast)
         {
             $p_param->setSendStackAll($tmp);
+            return null;
         }
-        $p_param->setTempBuff(['send_data' => $tmp]);
         return $this->reuseSending($p_param);
     }
 
