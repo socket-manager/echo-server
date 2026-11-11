@@ -156,7 +156,7 @@ class PureUdpEchoServerMultiSession extends Console
         $ret = $manager->listen();
         if($ret === false)
         {
-            goto finish;   // 待ち受け失敗
+            goto finish;   // リッスン失敗
         }
 
         // ノンブロッキングループ
