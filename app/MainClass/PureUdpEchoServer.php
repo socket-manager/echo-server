@@ -42,6 +42,11 @@ class PureUdpEchoServer extends Console
     private int $port = 10000;
 
     /**
+     * @var int $max_concurrent_connections 接続制限数
+     */
+    private int $max_concurrent_connections = 100;
+
+    /**
      * @var int $cycle_interval 周期インターバル時間（μs）
      */
     private int $cycle_interval = 10;
@@ -100,6 +105,10 @@ class PureUdpEchoServer extends Console
 
         // 接続制限数の取得
         $max_concurrent_connections = $this->getParameter('max_concurrent_connections');
+        if($max_concurrent_connections !== null)
+        {
+            $this->max_concurrent_connections = $max_concurrent_connections;
+        }
 
         // ポート番号の取得
         $port = $this->getParameter('port');
@@ -116,7 +125,7 @@ class PureUdpEchoServer extends Console
         $manager = new PureUdpManager(
             $this->host,
             $this->port,
-            $max_concurrent_connections,
+            $this->max_concurrent_connections,
             $this->os_buff_size['send'],
             $this->os_buff_size['recv'],
             $this->internal_recv_size,
